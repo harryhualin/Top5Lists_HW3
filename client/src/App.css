@@ -48,7 +48,7 @@ body {
   background-image: linear-gradient(to bottom,         
   #b8b808, #636723);
   color: white;
-  font-size: 48pt;
+  font-size: 38pt;
   border-color: black;
   border-width: 2px;
   border-style: solid;
@@ -62,7 +62,7 @@ body {
 }
 
 .top5-button, .top5-button-disabled {
-  font-size:36pt;
+  font-size:30pt;
   border-width: 0px;
   float:left;
   color: black;
@@ -255,7 +255,7 @@ input {
   background: var(--black);
   color: var(--swatch-text);
   cursor: pointer;
-  visibility: hidden;
+  visibility:hidden;
   opacity: 0;
   transition: all 0.35s ease-in;
   font-family: var(--font-primary);

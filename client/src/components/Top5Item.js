@@ -9,6 +9,8 @@ import { GlobalStoreContext } from '../store'
 function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [draggedTo, setDraggedTo] = useState(0);
+    const [ editActive, setEditActive ] = useState(false);
+    const [ text, setText ] = useState(props.text);
 
     function handleDragStart(event) {
         event.dataTransfer.setData("item", event.target.id);
@@ -40,12 +42,50 @@ function Top5Item(props) {
         // UPDATE THE LIST
         store.addMoveItemTransaction(sourceId, targetId);
     }
+    function handleToggleEdit(event) {
+        event.stopPropagation();
+        toggleEdit();
+    }
+
+    function toggleEdit() {
+        let newActive = !editActive;
+        if (newActive) {
+            store.setIsItemEditActive();
+        }
+        setEditActive(newActive);
+    }
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            store.addChangeItemTransaction(index, text);
+            toggleEdit();
+        }
+    }
+
+    function handleUpdateText(event) {
+        setText(event.target.value);
+    }
+
 
     let { index } = props;
     let itemClass = "top5-item";
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
+    if (editActive) 
+        return (
+
+            <input
+                autoFocus
+                id={'item-' + (index + 1) }
+                className='top5-item'
+                type='text'
+                onKeyPress={handleKeyPress}
+                onChange={handleUpdateText}
+                defaultValue={text}
+            />
+        )
+    
+    
     return (
         <div
             id={'item-' + (index + 1)}
@@ -62,6 +102,7 @@ function Top5Item(props) {
                 id={"edit-item-" + index + 1}
                 className="list-card-button"
                 value={"\u270E"}
+                onClick={handleToggleEdit}
             />
             {props.text}
         </div>)

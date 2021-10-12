@@ -21,6 +21,7 @@ function DeleteModal() {
     function handleCloseModal(event) {
         store.hideDeleteListModal();
     }
+    
     return (
         <div
             className="modal"

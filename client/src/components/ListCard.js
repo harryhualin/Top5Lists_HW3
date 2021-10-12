@@ -50,7 +50,12 @@ function ListCard(props) {
     function handleUpdateText(event) {
         setText(event.target.value );
     }
-
+    // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
+    function showDeleteListModal() {
+        let modal = document.getElementById("delete-modal");
+        modal.classList.remove("is-visible");
+    }
+   
     let selectClass = "unselected-list-card";
     if (selected) {
         selectClass = "selected-list-card";
@@ -76,8 +81,10 @@ function ListCard(props) {
                 type="button"
                 id={"delete-list-" + idNamePair._id}
                 className="list-card-button"
+                onclick={showDeleteListModal}
                 value={"\u2715"}
-            />
+           
+           />
             <input
                 disabled={cardStatus}
                 type="button"
@@ -91,6 +98,7 @@ function ListCard(props) {
     if (editActive) {
         cardElement =
             <input
+                autoFocus
                 id={"list-" + idNamePair._id}
                 className='list-card'
                 type='text'
