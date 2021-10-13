@@ -135,7 +135,7 @@ export const useGlobalStore = () => {
             }
             case GlobalStoreActionType.DELETED_MARKED_LIST: {
                 return setStore({
-                    idNamePairs: store.idNamePairs,
+                    idNamePairs: payload,
                     currentList: null,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
@@ -169,12 +169,13 @@ export const useGlobalStore = () => {
                                 top5List: newtop5list
                             }
                         });
+                        store.setCurrentList(newtop5list._id);
                     } 
                 } 
                    
         }
         asyncCreateNewList();
-
+        
     }
     
     // THIS FUNCTION PROCESSES CHANGING A LIST NAME
@@ -337,16 +338,20 @@ export const useGlobalStore = () => {
     store.deleteMarkedList=function(){
         
         async function asyncDeleteMarkedList() {
-        
-            await api.deleteTop5ListById(store.listMarkedForDeletion._id);    
-    
-            store.loadIdNamePairs();     
-            
+            let pairsArray=[];
+                try{const response=await api.deleteTop5ListById(store.listMarkedForDeletion._id);    
+                if (response.data.success) { 
+                    const res=await (await api.getTop5ListPairs());
+                    if(res.data.success){
+                        pairsArray=res.data.idNamePairs;}     
+                } }
+                catch{
+                    pairsArray=[]
+                }
                 storeReducer({
-                type: GlobalStoreActionType.DELETED_MARKED_LIST,
-                payload: null
-                });
-           
+                        type: GlobalStoreActionType.DELETED_MARKED_LIST,
+                        payload: pairsArray
+                        });
         }
         
         store.hideDeleteListModal();
