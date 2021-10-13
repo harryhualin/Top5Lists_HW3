@@ -175,7 +175,7 @@ export const useGlobalStore = () => {
                    
         }
         asyncCreateNewList();
-        
+        store.updateToolbarButtons();
     }
     
     // THIS FUNCTION PROCESSES CHANGING A LIST NAME
@@ -216,8 +216,9 @@ export const useGlobalStore = () => {
     store.closeCurrentList = function () {
         storeReducer({
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
-            payload: {}
+            payload: null
         });
+        tps.clearAllTransactions();
     }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
@@ -259,10 +260,13 @@ export const useGlobalStore = () => {
             }
         }
         asyncSetCurrentList(id);
+
     }
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
         tps.addTransaction(transaction);
+        store.updateToolbarButtons();
+
     }
     store.moveItem = function (start, end) {
         start -= 1;
@@ -284,15 +288,18 @@ export const useGlobalStore = () => {
 
         // NOW MAKE IT OFFICIAL
         store.updateCurrentList();
+
     }
     store.addChangeItemTransaction = function (index, newtext) {
         let oldtext = store.currentList.items[index];
         let transaction = new ChangeItem_Transaction(store,index, oldtext, newtext);
         tps.addTransaction(transaction);
+        store.updateToolbarButtons();
     }
     store.changeItem =function(index,newtext){
         store.currentList.items[index]=newtext;
-        store.updateCurrentList();
+        store.updateCurrentList(); 
+       
     }
     store.updateCurrentList = function() {
         async function asyncUpdateCurrentList() {
@@ -307,18 +314,31 @@ export const useGlobalStore = () => {
         asyncUpdateCurrentList();
     }
     store.undo = function () {
-        tps.undoTransaction();
+        if (tps.hasTransactionToUndo()) {
+            tps.undoTransaction();
+            store.updateToolbarButtons();
+        }
     }
     store.redo = function () {
-        tps.doTransaction();
+        if (tps.hasTransactionToRedo()) {
+            tps.doTransaction();
+            store.updateToolbarButtons();
+        }
     }
 
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
-    store.setIsListNameEditActive = function () {
+    store.setIsListNameEditActive = function (id) {
+           async function asyncSetListNameEditActive(id){
+        let response=await api.getTop5ListById(id);
+        let newlist=null;
+        if (response.data.success){
+            newlist=response.data.top5List;
+        }
         storeReducer({
             type: GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE,
-            payload: null
-        });
+            payload: newlist
+        });}
+        asyncSetListNameEditActive(id);
     }
     store.setIsItemEditActive = function () {
         storeReducer({
@@ -356,13 +376,48 @@ export const useGlobalStore = () => {
         
         store.hideDeleteListModal();
         asyncDeleteMarkedList();
+
         
     };
     store.hideDeleteListModal=function(){
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
-    
+        store.setIsItemEditActive();
     };
+    store.updateToolbarButtons=()=> {
+        if (!tps.hasTransactionToUndo()) {
+            store.disableButton("undo-button");
+        }
+        else {
+            store.enableButton("undo-button");
+        }   
+        
+        if (!tps.hasTransactionToRedo()) {
+            store.disableButton("redo-button");
+        }
+        else {
+            store.enableButton("redo-button");
+        }   
+        
+        if(store.currentList==null||store.currentList===[]){
+            store.disableButton("close-button") 
+        }
+        else {
+             store.enableButton("close-button"); 
+        }
+        
+    }
+  
+    store.disableButton=(id)=> {
+        let button = document.getElementById(id);
+        button.classList.add("top5-button-disabled");
+        document.getElementById(id).disabled=true;
+    }
+    store.enableButton=(id)=> {
+        let button = document.getElementById(id);
+        button.classList.remove("top5-button-disabled");
+        document.getElementById(id).disabled=false ;
+    }
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
 }

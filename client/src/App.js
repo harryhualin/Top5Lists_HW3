@@ -8,7 +8,7 @@ import { Banner, ListSelector, Statusbar, Workspace } from './components'
     @author McKilla Gorilla
 */
 const App = () => {
-    
+
     return (
         <Router>
             <Banner />
@@ -17,7 +17,8 @@ const App = () => {
                 <Route path="/top5list/:id" exact component={Workspace} />
             </Switch>
             <Statusbar />
-        </Router>
+        </Router> 
+    
     )
 }
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, {useContext, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import ListCard from './ListCard.js'
 import { GlobalStoreContext } from '../store'
@@ -11,6 +11,7 @@ import DeleteModal from './DeleteModal'
 const ListSelector = () => {
     const { store } = useContext(GlobalStoreContext);
     store.history = useHistory();
+   
 
     useEffect(() => {
         store.loadIdNamePairs();
@@ -30,8 +31,13 @@ const ListSelector = () => {
             />
         ))      
     };
-    
+    let cardStatus = false;
+    if (store.isListNameEditActive) {
+        cardStatus = true;
+    }
+
     return (
+      
         <div id="top5-list-selector">
             <div id="list-selector-heading">
                 <input
@@ -39,7 +45,9 @@ const ListSelector = () => {
                     id="add-list-button"
                     className="top5-button"
                     onClick={newListCreatation}
-                    value="+" />
+                    value="+"
+                    disabled={cardStatus} />
+                    
                 Your Lists
             </div>
             <div id="list-selector-list">

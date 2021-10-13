@@ -12,6 +12,7 @@ function EditToolbar() {
     const history = useHistory();
 
     let enabledButtonClass = "top5-button";
+   
     function handleUndo() {
         store.undo();
     }
@@ -21,10 +22,12 @@ function EditToolbar() {
     function handleClose() {
         history.push("/");
         store.closeCurrentList();
+        store.updateToolbarButtons();
+    
     }
     let editStatus = false;
-    if (store.isItemEditActive) {
-        editStatus = true;
+    if (store.isItemNameEditActive) {
+         editStatus = true;
     }
     return (
         <div id="edit-toolbar">
