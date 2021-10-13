@@ -45,17 +45,19 @@ function ListCard(props) {
             store.changeListName(id, text);
             toggleEdit();
         }
+        store.setIsItemEditActive();
     }
 
     function handleUpdateText(event) {
         setText(event.target.value );
     }
+   
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
     function showDeleteListModal() {
-        let modal = document.getElementById("delete-modal");
-        modal.classList.remove("is-visible");
-    }
-   
+
+        store.showDeleteListModal(idNamePair);
+     }
+
     let selectClass = "unselected-list-card";
     if (selected) {
         selectClass = "selected-list-card";
@@ -81,7 +83,7 @@ function ListCard(props) {
                 type="button"
                 id={"delete-list-" + idNamePair._id}
                 className="list-card-button"
-                onclick={showDeleteListModal}
+                onClick={showDeleteListModal}
                 value={"\u2715"}
            
            />

@@ -20,7 +20,11 @@ export const GlobalStoreActionType = {
     CLOSE_CURRENT_LIST: "CLOSE_CURRENT_LIST",
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
-    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE"
+    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    SET_ITEM_EDIT_ACTIVE:"SET_ITEM_EDIT_ACTIVE",
+    MARK_LIST_FOR_DELETION:"MARK_LIST_FOR_DELETION",
+    DELETED_MARKED_LIST:"DELETED_MARKED_LIST"
+
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -74,7 +78,7 @@ export const useGlobalStore = () => {
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null
-                })
+                });
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
             case GlobalStoreActionType.LOAD_ID_NAME_PAIRS: {
@@ -118,6 +122,26 @@ export const useGlobalStore = () => {
                     isItemEditActive: true,
                     listMarkedForDeletion: null
                 });
+            }
+            case GlobalStoreActionType.MARK_LIST_FOR_DELETION: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: null,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: true,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: payload
+                });  
+            }
+            case GlobalStoreActionType.DELETED_MARKED_LIST: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: null,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                });  
             }
             default:
                 return store;
@@ -184,6 +208,7 @@ export const useGlobalStore = () => {
             }
         }
         asyncChangeListName(id);
+        
     }
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
@@ -300,6 +325,39 @@ export const useGlobalStore = () => {
             payload: null
         });
     }
+    store.showDeleteListModal=function (idNamePair) {
+        storeReducer({
+            type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
+            payload: idNamePair
+        });
+        let modal = document.getElementById("delete-modal");
+        modal.classList.add("is-visible");       
+     }
+    
+    store.deleteMarkedList=function(){
+        
+        async function asyncDeleteMarkedList() {
+        
+            await api.deleteTop5ListById(store.listMarkedForDeletion._id);    
+    
+            store.loadIdNamePairs();     
+            
+                storeReducer({
+                type: GlobalStoreActionType.DELETED_MARKED_LIST,
+                payload: null
+                });
+           
+        }
+        
+        store.hideDeleteListModal();
+        asyncDeleteMarkedList();
+        
+    };
+    store.hideDeleteListModal=function(){
+        let modal = document.getElementById("delete-modal");
+        modal.classList.remove("is-visible");
+    
+    };
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
 }

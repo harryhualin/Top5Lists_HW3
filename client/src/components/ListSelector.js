@@ -18,9 +18,9 @@ const ListSelector = () => {
 
     function newListCreatation(){
         store.createNewList();
-
     }
-    let listCard = "";
+    
+    let listCard = [];
     if (store) {
         listCard = store.idNamePairs.map((pair) => (
             <ListCard
@@ -28,8 +28,10 @@ const ListSelector = () => {
                 idNamePair={pair}
                 selected={false}
             />
-        ))
-    }
+        ))      
+    };
+    if(store.idNamePairs.length===1) {listCard=store.idNamePairs[0]._id};
+    if(store.idNamePairs.length===0) {listCard="empty"};
     return (
         <div id="top5-list-selector">
             <div id="list-selector-heading">
