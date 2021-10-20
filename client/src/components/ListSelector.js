@@ -19,6 +19,7 @@ const ListSelector = () => {
 
     function newListCreatation(){
         store.createNewList();
+        
     }
     
     let listCard = [];
@@ -32,8 +33,10 @@ const ListSelector = () => {
         ))      
     };
     let cardStatus = false;
+    let buttonClass="top5-button";
     if (store.isListNameEditActive) {
         cardStatus = true;
+        buttonClass="top5-button-disabled";
     }
 
     return (
@@ -43,7 +46,7 @@ const ListSelector = () => {
                 <input
                     type="button"
                     id="add-list-button"
-                    className="top5-button"
+                    className={buttonClass}
                     onClick={newListCreatation}
                     value="+"
                     disabled={cardStatus} />

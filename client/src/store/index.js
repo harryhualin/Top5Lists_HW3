@@ -119,7 +119,7 @@ export const useGlobalStore = () => {
                     currentList: store.currentList,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
-                    isItemEditActive: true,
+                    isItemEditActive: false,
                     listMarkedForDeletion: null
                 });
             }
@@ -159,23 +159,25 @@ export const useGlobalStore = () => {
                 const response = await api.createTop5List(newList);
                 if (response.data.success) {
                     let newtop5list = response.data.top5List;
+                   
                     let res = await api.getTop5ListPairs();
                     if (res.data.success) {
-                        let pairsArray = res.data.idNamePairs;
+                        let pairsArray = res.data.idNamePairs;        
                         storeReducer({
                             type: GlobalStoreActionType.CREATE_NEW_LIST,
                             payload: {
                                 idNamePairs: pairsArray,
-                                top5List: newtop5list
+                                top5List: newtop5list,
                             }
                         });
+                        
                         store.setCurrentList(newtop5list._id);
                     } 
                 } 
                    
         }
         asyncCreateNewList();
-        store.updateToolbarButtons();
+       
     }
     
     // THIS FUNCTION PROCESSES CHANGING A LIST NAME
@@ -219,6 +221,7 @@ export const useGlobalStore = () => {
             payload: null
         });
         tps.clearAllTransactions();
+        store.updateToolbarButtons();
     }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
@@ -255,12 +258,15 @@ export const useGlobalStore = () => {
                         type: GlobalStoreActionType.SET_CURRENT_LIST,
                         payload: top5List
                     });
+                    store.updateToolbarButtons();
                     store.history.push("/top5list/" + top5List._id);
+                    
                 }
             }
+             
         }
         asyncSetCurrentList(id);
-
+       
     }
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
@@ -329,11 +335,11 @@ export const useGlobalStore = () => {
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
     store.setIsListNameEditActive = function (id) {
            async function asyncSetListNameEditActive(id){
-        let response=await api.getTop5ListById(id);
+        //let response=await api.getTop5ListById(id);
         let newlist=null;
-        if (response.data.success){
-            newlist=response.data.top5List;
-        }
+        //if (response.data.success){
+       //     newlist=response.data.top5List;
+        //}
         storeReducer({
             type: GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE,
             payload: newlist
@@ -399,23 +405,28 @@ export const useGlobalStore = () => {
             store.enableButton("redo-button");
         }   
         
-        if(store.currentList==null||store.currentList===[]){
-            store.disableButton("close-button") 
-        }
-        else {
-             store.enableButton("close-button"); 
-        }
+        // if(store.currentList==null){
+        //     console.log("null");
+        //     store.enableButton("close-button") ;
+        // }
+        // else {
+        //     console.log(store.currentList.name)
+        //      store.disableButton("close-button"); 
+        // }
         
     }
   
     store.disableButton=(id)=> {
         let button = document.getElementById(id);
         button.classList.add("top5-button-disabled");
+        button.classList.remove("top5-button");   
         document.getElementById(id).disabled=true;
     }
     store.enableButton=(id)=> {
         let button = document.getElementById(id);
+        button.classList.add("top5-button");
         button.classList.remove("top5-button-disabled");
+        
         document.getElementById(id).disabled=false ;
     }
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT

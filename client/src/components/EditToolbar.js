@@ -11,7 +11,8 @@ function EditToolbar() {
     const { store } = useContext(GlobalStoreContext);
     const history = useHistory();
 
-    let enabledButtonClass = "top5-button";
+    let enabledButtonClass = "top5-button-disabled";
+    let ButtonClass= "top5-button-disabled"
    
     function handleUndo() {
         store.undo();
@@ -20,15 +21,17 @@ function EditToolbar() {
         store.redo();
     }
     function handleClose() {
+        store.closeCurrentList();   
         history.push("/");
-        store.closeCurrentList();
-        store.updateToolbarButtons();
-    
     }
-    let editStatus = false;
+    let editStatus = true;
     if (store.isItemNameEditActive) {
-         editStatus = true;
+         editStatus = false;
     }
+    
+    let hasCurrent= false;
+    if (store.currentList!=null){hasCurrent=true;ButtonClass="top5-button";}
+
     return (
         <div id="edit-toolbar">
             <div
@@ -46,10 +49,10 @@ function EditToolbar() {
                 &#x21B7;
             </div>
             <div
-                disabled={editStatus}
+                disabled={hasCurrent}
                 id='close-button'
                 onClick={handleClose}
-                className={enabledButtonClass}>
+                className={ButtonClass}>
                 &#x24E7;
             </div>
         </div>
